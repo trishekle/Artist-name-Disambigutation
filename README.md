@@ -14,7 +14,7 @@ artist is not the one they are credited to as **review candidates**.
 
 ## Demo
 
-![Interactive graph demo](docs/demo_v1.gif)
+![Interactive graph demo](docs/Demo_v1.gif)
 
 
 ## Data and credentials (read first)
