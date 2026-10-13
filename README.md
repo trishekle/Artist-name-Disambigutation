@@ -1,16 +1,45 @@
 ﻿# Artist Name Disambiguation
+Have you ever listened to music of your favourite artists online and had their radio on just to hear a completely unfamiliar song, album cover and vibe? I have and it has never been a good experience, and also a point of confusion. Sometimes its a simple mistake because 2 artists have the same name and maybe same song, but other times it may be more malicious than it seems to the eye. I wanted to solve this problem using data from Spotify, arguably the most well-known music streaming platform vulnerable to these problems. 
 
-Metadata-only tooling to spot likely **misattributed tracks** among same-name
-Spotify artists. Different artists sometimes share an exact name (two "WITCH",
-three "Funhouse"), and tracks occasionally get credited to the wrong one. This
-project scores how well each track fits each same-name artist, reframes those
-scores as a bipartite **track ↔ artist graph**, and flags tracks whose best-fit
-artist is not the one they are credited to as **review candidates**.
+## Background and prior art
 
-> The output is a **review signal, not proof**. There is no ground-truth labeling
-> yet, so a flagged track only means "worth a human look," not "confirmed wrong."
-> Analysis uses **metadata only** (names, durations, albums, collaborators) — never
-> audio.
+This project is informed by Spotify Research's "Which Witch? Artist name
+disambiguation and catalog curation using audio and metadata" (Regan,
+Hristova, Beguerisse Díaz; ISMIR 2023):
+https://research.atspotify.com/2023/11/which-witch-artist-name-disambiguation-and-catalog-curation-using-audio-and-metadata
+
+Spotify frames this as Named Entity Disambiguation and targets two error types:
+**misattribution** (a release credited to the wrong same-name artist) and
+**duplication** (one artist's discography split across multiple entries). Their
+system combines audio embeddings with metadata in a random forest trained on
+historical corrections, and keeps a human in the loop.
+
+This project deliberately takes a **different, narrower path**:
+
+- **Metadata only, no audio.** Spotify found audio dominates the misattribution
+  signal and metadata adds ~2% precision, so a metadata-only tool is not trying
+  to beat them on raw accuracy. Its edge is transparency and interactivity: every
+  flag has a readable reason, not a black-box score.
+- **No training labels.** Instead of a model trained on past corrections, this
+  uses a transparent weighted similarity and a bipartite track↔artist graph.
+- **Human-in-the-loop, by design.** Like Spotify's system, output is a review
+  signal that directs attention, not an automated verdict.
+
+## Future plans
+
+- **Ground-truth labeling + evaluation.** Hand-label a small set
+  (correct / misattributed / unsure) and report precision and recall, so the
+  tool's flags are measured rather than assumed.
+- **Interactive correction workbench.** Let a curator reassign a flagged track to
+  the correct artist and mark it correct / misattributed / unsure directly in the
+  UI — turning the app from read-only into a tool that fixes, not just flags.
+- **Unify fixing and labeling.** Persist each in-UI correction to a corrections
+  file (Postgres-swappable via the existing data-source seam) so every human fix
+  also becomes ground-truth data that feeds the evaluation above.
+- **Relocation suggestions.** Beyond flagging, suggest where a misattributed track
+  should go — the harder "relocation" step Spotify highlights.
+
+
 
 ## Demo
 
